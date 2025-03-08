@@ -1,6 +1,7 @@
 import React from "react";
 import "./Offers.css";
 import exclusive_image from "../Assets/exclusive_image.png";
+import exclu_can from "../Assets/exclu_can.webp"
 
 const Offers = () => {
   return (
@@ -12,7 +13,7 @@ const Offers = () => {
         <button>Check now</button>
       </div>
       <div className="offers-right">
-        <img src={exclusive_image} alt="" />
+        <img src={exclu_can} alt="" />
       </div>
     </div>
   );

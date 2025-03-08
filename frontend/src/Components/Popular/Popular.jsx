@@ -5,7 +5,7 @@ import Item from '../Item/Item'
 const Popular = (props) => {
   return (
     <div className='popular'>
-      <h1>POPULAR IN WOMEN</h1>
+      <h1>POPULAR </h1>
       <hr />
       <div className="popular-item">
         {props.data.map((item,index)=>{
