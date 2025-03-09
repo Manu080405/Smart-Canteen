@@ -13,7 +13,7 @@ const Hero = () => {
   const navigate = useNavigate(); // Initialize navigation function
 
   const handleExploreClick = () => {
-    navigate("/collection"); // Navigate to the "Explore" page
+    navigate("/mens"); // Navigate to the "Explore" page
   };
   
   return (
@@ -30,7 +30,19 @@ const Hero = () => {
         </div>
         <div className="hero-latest-btn">
           <div>EXPLORE
-          <button onClick={handleExploreClick}></button> 
+          <button 
+  onClick={handleExploreClick} 
+  style={{
+    width: "50px",
+    height: "10px",
+    fontSize: "18px",
+    background: "transparent",
+    color: "white",
+    border: "2px solid white",
+    borderRadius: "8px",
+    cursor: "pointer"
+  }}
+></button>
           </div>
           <img src={arrow_icon} alt="" />
         </div>

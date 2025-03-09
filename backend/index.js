@@ -235,10 +235,83 @@ app.post("/addproduct", async (req, res) => {
 
 // Create an endpoint for removing products using admin panel
 app.post("/removeproduct", async (req, res) => {
-  await Product.findOneAndDelete({ id: req.body.id });
-  console.log("Removed");
-  res.json({ success: true, name: req.body.name })
+  try {
+    const { id } = req.body;  // Extract ID from request body
+
+    // Validate if ID is correct
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid product ID" });
+    }
+
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    console.log("Product removed:", deletedProduct.name);
+    res.json({ success: true, message: `Product '${deletedProduct.name}' removed successfully` });
+  } catch (error) {
+    console.error("Error removing product:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 });
+
+app.put("/updateproduct/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Ensure the ID is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid product ID" });
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id, // Use `_id` instead of `id`
+      {
+        name: req.body.name,
+        description: req.body.description,
+        image: req.body.image,
+        category: req.body.category,
+        new_price: req.body.new_price,
+        old_price: req.body.old_price,
+      },
+      { new: true } // Return updated document
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    res.json({ success: true, message: "Product updated successfully", updatedProduct });
+
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+app.get("/getproduct/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid product ID" });
+    }
+
+    const product = await Product.findById(id);
+    if (product) {
+      res.json({ success: true, product });
+    } else {
+      res.status(404).json({ success: false, message: "Product not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
 
 // Starting Express Server
 app.listen(port, (error) => {
