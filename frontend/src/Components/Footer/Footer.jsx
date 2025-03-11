@@ -11,12 +11,12 @@ const Footer = () => {
     <div className='footer'>
       <div className="footer-logo">
         <img src={footer_logo} alt="" />
-        <p>SHOPPER</p>
+        <p>SCMS CANTEEN</p>
       </div>
       <ul className="footer-links">
-        <li>Company</li>
-        <li>Products</li>
-        <li>Offices</li>
+        <li>Help</li>
+        
+        
         <li>About</li>
         <li>Contact</li>
       </ul>
@@ -33,7 +33,7 @@ const Footer = () => {
       </div>
       <div className="footer-copyright">
         <hr />
-        <p>Copyright @ 2023 - All Right Reserved.</p>
+        <p>Copyright @ 2025 - All Right Reserved.</p>
       </div>
     </div>
   )

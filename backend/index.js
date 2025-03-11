@@ -76,6 +76,23 @@ const Product = mongoose.model("Product", {
   avilable: { type: Boolean, default: true },
 });
 
+const OrderSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true },
+  items: [
+    {
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+      quantity: { type: Number, required: true },
+      price: { type: Number, required: true }
+    }
+  ],
+  totalPrice: { type: Number, required: true },
+  status: { type: String, default: "Pending" }, // Pending, Shipped, Delivered, Cancelled
+  date: { type: Date, default: Date.now }
+});
+
+const Order = mongoose.model("Order", OrderSchema);
+
+
 
 // ROOT API Route For Testing
 app.get("/", (req, res) => {
@@ -85,30 +102,28 @@ app.get("/", (req, res) => {
 
 // Create an endpoint at ip/login for login the user and giving auth-token
 app.post('/login', async (req, res) => {
-  console.log("Login");
+  console.log("Login request received:", req.body);
+
   let success = false;
   let user = await Users.findOne({ email: req.body.email });
+
   if (user) {
     const passCompare = req.body.password === user.password;
     if (passCompare) {
-      const data = {
-        user: {
-          id: user.id
-        }
-      }
+      const data = { user: { id: user.id } };
       success = true;
-      console.log(user.id);
       const token = jwt.sign(data, 'secret_ecom');
-      res.json({ success, token });
+
+      console.log("Generated Token:", token); // Debugging log
+      return res.json({ success, token });
+    } else {
+      return res.status(400).json({ success, errors: "Incorrect email/password" });
     }
-    else {
-      return res.status(400).json({ success: success, errors: "please try with correct email/password" })
-    }
+  } else {
+    return res.status(400).json({ success, errors: "Incorrect email/password" });
   }
-  else {
-    return res.status(400).json({ success: success, errors: "please try with correct email/password" })
-  }
-})
+});
+
 
 
 //Create an endpoint at ip/auth for regestring the user & sending auth-token
@@ -308,6 +323,66 @@ app.get("/getproduct/:id", async (req, res) => {
   } catch (error) {
     console.error("Error fetching product:", error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+// fetch user orders
+app.get("/userorders/:userId", async (req, res) => {
+  try {
+    let { userId } = req.params;
+
+    // Ensure userId is valid (Check if it's a valid MongoDB ObjectId)
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid User ID format" });
+    }
+
+    const userOrders = await Order.find({ userId }).lean(); // Use .lean() to get plain JSON
+
+    console.log("Fetched Orders:", userOrders); // Debugging log
+
+    if (!userOrders || userOrders.length === 0) {
+      return res.status(404).json({ message: "No orders found for this user" });
+    }
+
+    res.json(userOrders);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ message: "Error fetching orders" });
+  }
+});
+
+
+
+app.post("/orders", fetchuser, async (req, res) => {
+  try {
+    const userId = req.user.id; // Get userId from authenticated token
+    const { items, totalPrice } = req.body;
+
+    // Validate items
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: "Items must be a non-empty array" });
+    }
+
+    // Validate totalPrice
+    if (typeof totalPrice !== "number" || totalPrice < 0) {
+      return res.status(400).json({ error: "Total price must be a non-negative number" });
+    }
+
+    // Validate each item in the array
+    for (const item of items) {
+      if (!mongoose.Types.ObjectId.isValid(item.productId) || 
+          typeof item.quantity !== "number" || item.quantity <= 0 || 
+          typeof item.price !== "number" || item.price < 0) {
+        return res.status(400).json({ error: "Invalid item format" });
+      }
+    }
+
+    const newOrder = new Order({ userId, items, totalPrice, status: "Pending" });
+    await newOrder.save();
+
+    res.status(201).json({ message: "Order placed successfully", order: newOrder.toJSON() });
+  } catch (error) {
+    console.error("Error placing order:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

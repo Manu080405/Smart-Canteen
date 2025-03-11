@@ -11,6 +11,9 @@ import kid_banner from "./Components/Assets/banner_kids.png";
 import LoginSignup from "./Pages/LoginSignup";
 import ban_lunch from "./Components/Assets/ban_lunch.webp"
 import NewCollections from "./Components/NewCollections/NewCollections";
+import UserOrders from "./Components/UserOrders/UserOrders";
+import snack_banner from "./Components/Assets/snacksbanner.jpg"
+import drink_banner from "./Components/Assets/drinkbanner.jpg"
 
 export const backend_url = 'http://localhost:4000';
 export const currency = '₹';
@@ -24,14 +27,15 @@ function App() {
         <Routes>
           <Route path="/" element={<Shop gender="all" />} />
           <Route path="/mens" element={<ShopCategory banner={ban_lunch} category="men" />} />
-          <Route path="/womens" element={<ShopCategory banner={women_banner} category="women" />} />
-          <Route path="/kids" element={<ShopCategory banner={kid_banner} category="kid" />} />
+          <Route path="/womens" element={<ShopCategory banner={snack_banner} category="women" />} />
+          <Route path="/kids" element={<ShopCategory banner={drink_banner} category="kid" />} />
           <Route path='/product' element={<Product />}>
             <Route path=':productId' element={<Product />} />
           </Route>
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<LoginSignup/>} />
           <Route path="/collection" element={<NewCollections/>}/>
+          <Route path="/userorder" element={<UserOrders/>}/>
         </Routes>
         <Footer />
       </Router>
