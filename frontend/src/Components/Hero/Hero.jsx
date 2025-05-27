@@ -13,7 +13,7 @@ const Hero = () => {
   const navigate = useNavigate(); // Initialize navigation function
 
   const handleExploreClick = () => {
-    navigate("/mens"); // Navigate to the "Explore" page
+    navigate("/lunch"); // Navigate to the "Explore" page
   };
   
   return (

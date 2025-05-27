@@ -175,10 +175,10 @@ app.get("/newcollections", async (req, res) => {
 
 
 // endpoint for getting womens products data
-app.get("/popularinwomen", async (req, res) => {
-  let products = await Product.find({ category: "women" });
+app.get("/popularinsnacks", async (req, res) => {
+  let products = await Product.find({ category: "snacks" });
   let arr = products.splice(0, 4);
-  console.log("Popular In Women");
+  console.log("Popular In Snack");
   res.send(arr);
 });
 
