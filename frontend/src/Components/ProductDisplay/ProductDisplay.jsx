@@ -5,9 +5,8 @@ import star_dull_icon from "../Assets/star_dull_icon.png";
 import { ShopContext } from "../../Context/ShopContext";
 import { backend_url, currency } from "../../App";
 
-const ProductDisplay = ({product}) => {
-
-  const {addToCart} = useContext(ShopContext);
+const ProductDisplay = ({ product }) => {
+  const { addToCart } = useContext(ShopContext);
 
   return (
     <div className="productdisplay">
@@ -36,22 +35,16 @@ const ProductDisplay = ({product}) => {
           <div className="productdisplay-right-price-old">{currency}{product.old_price}</div>
           <div className="productdisplay-right-price-new">{currency}{product.new_price}</div>
         </div>
+        
+        {/* Show quantity here */}
+        <div className="productdisplay-right-qty">
+          <strong>Quantity Available: </strong> {product.qty ?? "N/A"}
+        </div>
+
         <div className="productdisplay-right-description">
-        {product.description}
+          {product.description}
         </div>
-        <div className="productdisplay-right-size">
-          {/* <h1>Select Size</h1> */}
-          {/* <div className="productdisplay-right-sizes">
-            <div>S</div>
-            <div>M</div>
-            <div>L</div>
-            <div>XL</div>
-            <div>XXL</div>
-          </div> */}
-        </div>
-        <button onClick={()=>addToCart(product.id)}>ADD TO CART</button>
-        {/* <p className="productdisplay-right-category"><span>Category :</span> Women, T-shirt, Crop Top</p>
-        <p className="productdisplay-right-category"><span>Tags :</span> Modern, Latest</p> */}
+        <button onClick={() => addToCart(product.id)}>ADD TO CART</button>
       </div>
     </div>
   );

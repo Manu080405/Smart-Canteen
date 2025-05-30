@@ -39,7 +39,7 @@ const ListProduct = () => {
     <div className="listproduct">
       <h1>All Products List</h1>
       <div className="listproduct-format-main">
-        <p>Products</p> <p>Title</p> <p> Price</p> <p>Category</p><p>Remove</p><p>Edit</p>
+        <p>Products</p> <p>Title</p> <p> Price</p> <p>Category</p><p>Quantity</p><p>Remove</p><p>Edit</p>
       </div>
       <div className="listproduct-allproducts">
         <hr />
@@ -50,6 +50,7 @@ const ListProduct = () => {
               <p className="cartitems-product-title">{e.name}</p>
               <p>{currency}{e.new_price}</p>
               <p>{e.category}</p>
+              <p>{e.qty}</p>
               <img
                 className="listproduct-remove-icon"
                 onClick={() => removeProduct(e._id)}

@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(cors());
 
 // Database Connection With MongoDB
-mongoose.connect("mongodb+srv://adithyanb38:akku1234@cluster3.eymmd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster3");
+mongoose.connect("mongodb+srv://manu0804:manu@cluster0.uyaxilh.mongodb.net/SmartCanteen?retryWrites=true&w=majority&appName=Cluster0");
 
 // paste your mongoDB Connection string above with password
 // password should not contain '@' special character
@@ -72,9 +72,11 @@ const Product = mongoose.model("Product", {
   category: { type: String, required: true },
   new_price: { type: Number },
   old_price: { type: Number },
+  qty: { type: Number, default: 0 }, // ✅ Added quantity
   date: { type: Date, default: Date.now },
   avilable: { type: Boolean, default: true },
 });
+
 
 const OrderSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true },
@@ -130,31 +132,42 @@ app.post('/login', async (req, res) => {
 app.post('/signup', async (req, res) => {
   console.log("Sign Up");
   let success = false;
+
+  // Check if email ends with @gmail.com
+  if (!req.body.email.endsWith('@gmail.com')) {
+    return res.status(400).json({ success, errors: "Email must be a Gmail address (@gmail.com)" });
+  }
+
   let check = await Users.findOne({ email: req.body.email });
   if (check) {
-    return res.status(400).json({ success: success, errors: "existing user found with this email" });
+    return res.status(400).json({ success, errors: "existing user found with this email" });
   }
+
   let cart = {};
   for (let i = 0; i < 300; i++) {
     cart[i] = 0;
   }
+
   const user = new Users({
     name: req.body.username,
     email: req.body.email,
     password: req.body.password,
     cartData: cart,
   });
+
   await user.save();
+
   const data = {
     user: {
       id: user.id
     }
-  }
+  };
 
   const token = jwt.sign(data, 'secret_ecom');
   success = true;
-  res.json({ success, token })
-})
+  res.json({ success, token });
+});
+
 
 
 // endpoint for getting all products data
@@ -218,7 +231,12 @@ app.post('/removefromcart', fetchuser, async (req, res) => {
 app.post('/getcart', fetchuser, async (req, res) => {
   console.log("Get Cart");
   let userData = await Users.findOne({ _id: req.user.id });
-  res.json(userData.cartData);
+  if (!userData) {
+  return res.status(404).json({ error: 'User not found' });
+}
+
+res.json(userData.cartData);
+
 
 })
 
@@ -226,13 +244,8 @@ app.post('/getcart', fetchuser, async (req, res) => {
 // Create an endpoint for adding products using admin panel
 app.post("/addproduct", async (req, res) => {
   let products = await Product.find({});
-  let id;
-  if (products.length > 0) {
-    let last_product_array = products.slice(-1);
-    let last_product = last_product_array[0];
-    id = last_product.id + 1;
-  }
-  else { id = 1; }
+  let id = products.length > 0 ? products.slice(-1)[0].id + 1 : 1;
+
   const product = new Product({
     id: id,
     name: req.body.name,
@@ -241,11 +254,14 @@ app.post("/addproduct", async (req, res) => {
     category: req.body.category,
     new_price: req.body.new_price,
     old_price: req.body.old_price,
+    qty: req.body.qty || 0 // ✅ Save quantity from request
   });
+
   await product.save();
-  console.log("Saved");
-  res.json({ success: true, name: req.body.name })
+  console.log("Product saved:", product.name);
+  res.json({ success: true, name: req.body.name });
 });
+
 
 
 // Create an endpoint for removing products using admin panel
@@ -276,13 +292,13 @@ app.put("/updateproduct/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Ensure the ID is a valid MongoDB ObjectId
+    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: "Invalid product ID" });
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
-      id, // Use `_id` instead of `id`
+      id,
       {
         name: req.body.name,
         description: req.body.description,
@@ -290,6 +306,7 @@ app.put("/updateproduct/:id", async (req, res) => {
         category: req.body.category,
         new_price: req.body.new_price,
         old_price: req.body.old_price,
+        qty: req.body.qty,  // <-- added qty here
       },
       { new: true } // Return updated document
     );
@@ -305,6 +322,7 @@ app.put("/updateproduct/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
 app.get("/getproduct/:id", async (req, res) => {
   try {
     const { id } = req.params;
